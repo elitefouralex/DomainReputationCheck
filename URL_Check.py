@@ -1,19 +1,13 @@
 import requests
-#ensure to pip install whois
 import whois
-#set environment variables within .bashrc on debian based linux
 import os
 from datetime import datetime
 import simplejson
 
-"""
-This code will display any alerts from virus total and urlvoid
-along with how long the domain has been registered and who it
-is registered to ex. godaddy or google domains.
-"""
-
+#API keys
 VIRUSTOTAL_API_KEY = os.environ.get("virustotal_API_key")
 URLVOID_API_KEY = os.environ.get("urlvoid_API_key")
+#URLs to query
 VIRUSTOTAL_URL = 'https://www.virustotal.com/vtapi/v2/url/report'
 URLVOID_URL = 'https://endpoint.apivoid.com/urlinfo/'
 
@@ -42,13 +36,13 @@ def check_url(url):
     response_vt = requests.get(VIRUSTOTAL_URL, params=params).json()
 
     # Output the results for VirusTotal
-    print("Results:")
+    print("*Results*")
     if response_vt['response_code'] == 1:
         print("\nVirusTotal: No issues found.\n")
     else:
         print("VirusTotal: Issues found.")
         print("Reputation checking sites that flagged this domain:")
-        for scan in response_vt['scans']:
+        for scan in response_vt.get('scans', {}):
             if response_vt['scans'][scan]['detected']:
                 print(f"{scan}: {response_vt['scans'][scan]['result']}")
 
@@ -97,3 +91,8 @@ def check_url(url):
 if __name__ == "__main__":
     user_url = input("Enter the URL to check: ").strip()
     check_url(user_url)
+
+
+
+
+
