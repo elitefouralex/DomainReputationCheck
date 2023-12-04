@@ -1,10 +1,26 @@
+"""
+Authored by Alex Oliveira made freely available under the
+GNU General Public License v3
+https://github.com/elitefouralex
+"""
+
 import requests
+#pip install whois
 import whois
 import os
 from datetime import datetime
 import simplejson
 
+"""
+For the developers' and authors' protection, the GPL clearly explains
+that there is no warranty for this free software.  For both users' and
+authors' sake, the GPL requires that modified versions be marked as
+changed, so that their problems will not be attributed erroneously to
+authors of previous versions. -per the GNU GPLv3
+"""
+
 #API keys
+#keys stored in .bashrc as encrypted variables
 VIRUSTOTAL_API_KEY = os.environ.get("virustotal_API_key")
 URLVOID_API_KEY = os.environ.get("urlvoid_API_key")
 #URLs to query
@@ -52,7 +68,7 @@ def check_url(url):
 
         # Check for non-JSON response
         if response_uv.text.startswith("<"):
-            print("Non-JSON response from URLVoid API. Handling it separately.")
+            print("Non-JSON response from URLVoid API. No response to report.")
             # Handle the non-JSON response here, or you can choose to ignore it.
         else:
             response_uv_json = response_uv.json()
@@ -91,8 +107,3 @@ def check_url(url):
 if __name__ == "__main__":
     user_url = input("Enter the URL to check: ").strip()
     check_url(user_url)
-
-
-
-
-
