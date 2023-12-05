@@ -3,13 +3,10 @@ Authored by Alex Oliveira made freely available under the
 GNU General Public License v3
 https://github.com/elitefouralex
 """
-
 import requests
-#pip install whois
 import whois
 import os
 from datetime import datetime
-import simplejson
 
 """
 For the developers' and authors' protection, the GPL clearly explains
@@ -19,13 +16,8 @@ changed, so that their problems will not be attributed erroneously to
 authors of previous versions. -per the GNU GPLv3
 """
 
-#API keys
-#keys stored in .bashrc as encrypted variables
 VIRUSTOTAL_API_KEY = os.environ.get("virustotal_API_key")
-URLVOID_API_KEY = os.environ.get("urlvoid_API_key")
-#URLs to query
 VIRUSTOTAL_URL = 'https://www.virustotal.com/vtapi/v2/url/report'
-URLVOID_URL = 'https://endpoint.apivoid.com/urlinfo/'
 
 def calculate_registration_duration(creation_date):
     if isinstance(creation_date, list):
@@ -40,7 +32,7 @@ def calculate_registration_duration(creation_date):
 def get_registrar_info(whois_info):
     registrar = whois_info.get('registrar')
     if registrar:
-        return f"Registrar: {registrar}"
+        return f"{registrar}"
 
 def check_url(url):
     if not VIRUSTOTAL_API_KEY:
@@ -62,44 +54,17 @@ def check_url(url):
             if response_vt['scans'][scan]['detected']:
                 print(f"{scan}: {response_vt['scans'][scan]['result']}")
 
-    # Check against URLVoid
-    try:
-        response_uv = requests.get(f"{URLVOID_URL}/{url}/")
-
-        # Check for non-JSON response
-        if response_uv.text.startswith("<"):
-            print("Non-JSON response from URLVoid API. No response to report.")
-            # Handle the non-JSON response here, or you can choose to ignore it.
-        else:
-            response_uv_json = response_uv.json()
-            print("\nResults from URLVoid:")
-            if 'data' in response_uv_json:
-                if 'blacklists' in response_uv_json['data']:
-                    print("URLVoid: Issues found.")
-                    print("Reputation checking sites that flagged this domain:")
-                    for blacklist in response_uv_json['data']['blacklists']:
-                        print(f"{blacklist['name']}: {blacklist['result']}")
-                else:
-                    print("URLVoid: No issues found.")
-            else:
-                print("URLVoid: Unexpected response format. Check the raw response.")
-
-    except simplejson.JSONDecodeError:
-        print("JSONDecodeError: Unable to decode JSON response from URLVoid API.")
-        # Handle the JSONDecodeError here.
-
     # WHOIS information
     try:
         domain_info = whois.whois(url)
         creation_date = domain_info.creation_date
         if creation_date:
             registration_duration = calculate_registration_duration(creation_date)
-            print(f"\nWHOIS: Domain registration duration: {registration_duration}\n")
-            
-            # Get and print registrar information
+
+            # Get registrar information
             registrar_info = get_registrar_info(domain_info)
             if registrar_info:
-                print(registrar_info)
+                print(f"\nWHOIS: Registered with {registrar_info} {registration_duration} ago.\n")
 
     except whois.parser.PywhoisError as e:
         print(f"\nWHOIS: Unable to retrieve WHOIS information - {e}")
